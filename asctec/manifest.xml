@@ -1,0 +1,23 @@
+<package>
+  <description brief="asctec">
+
+     asctec
+
+  </description>
+  <author>Nathan Michael</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/asctec</url>
+
+  <depend package="roscpp"/>
+  <depend package="sensor_msgs"/>
+  <depend package="tf"/>
+  <depend package="AscTecInterface"/>
+
+  <export>
+    <cpp cflags="-I${prefix}/msg/cpp"/>
+  </export>
+
+</package>
+
+

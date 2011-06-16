@@ -1,0 +1,17 @@
+<launch>
+  <node pkg="asctec"
+        name="asctec"
+        type="asctec"
+        output="screen">
+    <param name="port" value="/dev/cu.usbserial-A800cGcZ"/>
+    <param name="zigbee" value="true"/>
+  </node>
+
+  <node pkg="ipc_bridge_ros"
+        name="asctec_PDCmd_subscriber"
+        type="asctec_PDCmd_subscriber"
+        output="screen">
+    <remap from="~topic" to="/asctec/cmd_pd"/>
+    <param name="message" value="cmd_pd"/>
+  </node>
+</launch>

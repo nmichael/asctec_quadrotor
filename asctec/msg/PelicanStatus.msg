@@ -1,0 +1,2 @@
+float32 battery_voltage
+uint32 cpu_load
