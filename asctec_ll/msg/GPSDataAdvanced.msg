@@ -1,0 +1,5 @@
+asctec_ll/GPSData gps_data
+float64 latitude_best_estimate
+float64 longitude_best_estimate
+float64 speed_x_best_estimate
+float64 speed_y_best_estimate

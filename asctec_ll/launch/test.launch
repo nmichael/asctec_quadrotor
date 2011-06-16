@@ -1,0 +1,13 @@
+<launch>
+  <node pkg="asctec_ll"
+        name="asctec"
+        type="asctec_ll"
+        output="screen">
+    <param name="port" value="/dev/cu.usbserial-A7003NmI"/>
+    <param name="ll_status_rate" value="1"/>
+    <param name="imu_calc_data_rate" value="5"/>
+    <param name="rc_data_rate" value="5"/>
+    <param name="ctrl_out_rate" value="5"/>
+    <param name="gps_data_advanced_rate" value="5"/>
+  </node>
+</launch>

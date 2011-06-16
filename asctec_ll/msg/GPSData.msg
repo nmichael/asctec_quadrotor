@@ -1,0 +1,11 @@
+float64 latitude
+float64 longitude
+float32 height
+float32 speed_x
+float32 speed_y
+float32 heading
+float32 horizontal_accuracy
+float32 vertical_accuracy
+float32 speed_accuracy
+uint32 numSV
+bool gps_fix
