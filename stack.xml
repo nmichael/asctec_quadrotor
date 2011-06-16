@@ -1,0 +1,9 @@
+<stack>
+  <description brief="asctec_quadrotor">asctec_quadrotor</description>
+  <author>Maintained by Nathan Michael</author>
+  <license>BSD</license>  
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/asctec_quadrotor</url>
+  <depend stack="ros" />
+
+</stack>
