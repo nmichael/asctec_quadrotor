@@ -1,0 +1,9 @@
+<launch>
+  <node pkg="vis_nodes"
+        name="odometry"
+        type="odometry"
+        output="screen">
+    <param name="~tf_prefix" value="quadrotor"/>
+    <param name="mailbox" value="/odometry" type="string"/>
+  </node>
+</launch>

@@ -1,0 +1,36 @@
+ <launch>
+  <node pkg="quadrotor_simulator"
+        name="quadrotor"
+        type="quadrotor_simulator"
+        output="screen">
+    <param name="model_file"
+           value="$(find QuadrotorSimulator)/models/hummingbird.xml"/>
+    <param name="init/z" value="2.0"/>
+    <param name="init/roll" value="0"/>
+    <param name="init/pitch" value="0"/>
+    <param name="init/yaw" value="0"/>
+  </node>
+
+  <node pkg="vis_nodes"
+        name="odometry"
+        type="odometry"
+        output="screen">
+    <param name="~tf_prefix" value="quadrotor"/>
+    <remap from="~odometry" to="/quadrotor/odom"/>
+    <param name="mailbox" value="/odometry" type="string"/>
+  </node>
+
+  <node pkg="ipc_bridge_ros"
+        name="nav_msgs_Odometry_publisher"
+        type="nav_msgs_Odometry_publisher"
+        output="screen">
+    <remap from="~odom" to="/quadrotor/odom"/>
+  </node>
+
+  <node pkg="ipc_bridge_ros"
+        name="asctec_HWCmd_subscriber"
+        type="asctec_HWCmd_subscriber"
+        output="screen">
+    <remap from="~cmd_hw" to="/quadrotor/cmd_hw"/>
+  </node>
+</launch>

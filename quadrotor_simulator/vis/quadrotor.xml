@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<vis>
+
+  <gui>
+    <size>800 600</size>
+    <name>Vis</name>
+    <menuOn>0</menuOn>
+    <frame>
+      <frameRate>50</frameRate>
+      <camera>
+        <name>cam2</name>
+        <position>-5 0 3</position>
+        <lookAt>0 0 2</lookAt>
+        <clipDist>0.1</clipDist>
+      </camera>
+      <size>800 600</size>
+    </frame>
+  </gui>
+
+  <plugin>
+    <id>light1</id>
+    <filename>Light.so</filename>
+    <position>0 0 100</position>
+    <diffuse>0.8 0.8 0.8</diffuse>
+    <specular>0.8 0.8 0.8</specular>
+  </plugin>
+
+  <plugin>
+    <id>floor1</id>
+    <filename>Plane.so</filename>
+    <segments>10</segments>
+    <range>50 50</range>
+    <material>carpet</material>
+  </plugin>
+
+  <plugin>
+    <id>grid</id>
+    <filename>Grid.so</filename>
+    <segments>10</segments>
+    <range>20 20</range>
+    <res>0.5 0.5</res>
+  </plugin>
+
+  <plugin>
+    <id>sky</id>
+    <filename>Sky.so</filename>
+  </plugin>
+
+  <plugin>
+    <id>ambient</id>
+    <filename>Ambient.so</filename>
+    <color>1 1 1</color>
+  </plugin>
+
+  <plugin>
+    <id>axes</id>
+    <filename>Axes.so</filename>
+    <doubleLines>false</doubleLines>
+    <length>20 20 20</length>
+  </plugin>
+
+  <plugin>
+    <id>quadrotor</id>
+    <filename>Dummy.so</filename>
+    <plugin>
+      <id>odometry</id>
+      <filename>Hummingbird.so</filename>
+      <xyz>0 0 0</xyz>
+      <rpy>0 0 0</rpy>
+
+      <plugin>
+        <id>axes</id>
+        <filename>Axes.so</filename>
+        <doubleLines>false</doubleLines>
+        <length>0.5 0.5 0.5</length>
+      </plugin>
+
+      <plugin>
+        <id>mark</id>
+        <filename>Box.so</filename>
+        <xyz>0.11 0 0</xyz>
+        <dims>0.07 0.019 0.007</dims>
+        <material>Colors/Red</material>
+      </plugin>
+    </plugin>
+  </plugin>
+</vis>
