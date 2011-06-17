@@ -5,8 +5,6 @@
 extern void mainloop(void);
 extern void timer0ISR(void);
 
-#define PELICAN
-
 #define BATTERY_WARNING_VOLTAGE 10000	//9800 mV
 #define BAT_DIV 10//(BATTERY_WARNING_VOLTAGE-9000)/100
 
@@ -46,8 +44,6 @@ extern void timer0ISR(void);
 #define PD_HLSTATUS        	0x04
 
 #define PD_FILTERDATA		0x05
-#define PD_STATUSDATA		0x06
-#define PD_PDINPUT			0x08
 
 #define PD_CTRLOUT			0x11
 #define PD_FLIGHTPARAMS     0x12
@@ -65,47 +61,6 @@ extern void timer0ISR(void);
 
 #define CAM_TRIGGERED		0x04
 
-#define VICON_ROLL			1
-
-struct PD_INPUT
-{
-	unsigned short kp_roll, kd_roll;
-	unsigned short kp_pitch, kd_pitch;
-	unsigned short kd_yaw;
-
-	short roll;
-	short pitch;
-	short yaw_delta;
-
-	unsigned short thrust;
-
-	short p_des;
-	short q_des;
-	short r_des;
-
-	short roll_delta;
-	short pitch_delta;
-
-	short vicon_roll;
-	short vicon_pitch;
-	short vicon_bil;
-
-	short chksum;
-};
-extern struct PD_INPUT PD_Input, PD_Input_tmp;
-
-struct STATUS_DATA
-{
-	  // Battery voltage
-	  short battery_voltage;
-
-	  // Serial data enable
-	  unsigned short serial;
-
-	  // CPU load
-	  unsigned short cpu_load;
-};
-extern struct STATUS_DATA Status_Data;
 
 struct FILTER_DATA
 {
@@ -145,8 +100,6 @@ struct FILTER_DATA
   unsigned short channel[8];
 };
 extern struct FILTER_DATA Filter_Data;
-extern long mypitch;
-extern long myroll;
 
 struct IMU_CALCDATA {
 	//angles derived by integration of gyro_outputs, drift compensated by data fusion; -90000..+90000 pitch(nick) and roll, 0..360000 yaw; 1000 = 1 degree

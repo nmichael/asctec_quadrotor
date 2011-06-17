@@ -32,11 +32,6 @@ unsigned char *UART1_rxptr;
 
 unsigned char UART_CalibDoneFlag = 0;
 
-unsigned char CTRL_Input_updated = 0;
-unsigned char PD_Input_updated = 0;
-
-unsigned char ctrl_input = 0;
-
 static volatile unsigned char rb_busy=0;
 
 /*
@@ -428,30 +423,7 @@ void uart0ISR(void) __irq
 			else UART_syncstate = 0;
 			break;
         case 3:
-			if (UART_rxdata=='c') //data pending (e.g. flight params)
-			{
-				UART_rxcount=sizeof(CTRL_Input);
-				UART_rxptr=(unsigned char *)&CTRL_Input_tmp;
-				UART_syncstate = 4;
-			}
-			else if (UART_rxdata=='p') //data pending (e.g. flight params)
-			{
-				UART_rxcount=sizeof(PD_Input);
-				UART_rxptr=(unsigned char *)&PD_Input_tmp;
-				UART_syncstate=4;
-			}
-			else UART_syncstate=0;
-			break;
-        case 4:
-        	UART_rxcount--;
-			*UART_rxptr=UART_rxdata;
-			UART_rxptr++;
-
-			if (UART_rxcount==0)
-			{
-				PD_Input_updated = 1;
-				UART_syncstate = 0;
-			}
+			UART_syncstate=0;
 			break;
         default:
         	UART_syncstate=0;

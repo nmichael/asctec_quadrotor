@@ -18,11 +18,7 @@ void init(void)
   pll_init();
   pll_feed();
   init_ports();
-#ifdef PELICAN
-  UARTInitialize(230400);	//debug / command
-#else
-  UARTInitialize(57600);
-#endif
+  UARTInitialize(115200);	//debug / command
   UART1Initialize(57600);	//57600 Servo / GPS, 38400 "indoor GPS"
   init_spi();
   init_spi1();

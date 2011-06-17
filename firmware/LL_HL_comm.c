@@ -33,27 +33,19 @@ void SSP_data_distribution_HL(void)
 
 	if(!current_page)	//page 0
 	{
-#ifdef PELICAN
 		for(i=0;i<8;i++)
 		{
-                  //RO_RC_Data.channel[i]=LL_1khz_attitude_data.RC_data[i]*16;
                   Filter_Data.channel[i]=LL_1khz_attitude_data.RC_data[i]*16;
 		}
 
-		//Filter_Data.serial = LL_1khz_attitude_data.RC_data[4];
 		Filter_Data.acc_x = LL_1khz_attitude_data.acc_x;
 		Filter_Data.acc_y = LL_1khz_attitude_data.acc_y;
 		Filter_Data.acc_z = LL_1khz_attitude_data.acc_z;
-#else
-		Status_Data.serial = LL_1khz_attitude_data.RC_data[4];
-#endif
 	}
 	else if(current_page==1)	//page 1
 	{
-#ifdef PELICAN
 		Filter_Data.height = LL_1khz_attitude_data.height;
 		Filter_Data.dheight = LL_1khz_attitude_data.dheight;
-#endif
 	}
 	else if(current_page==2)
 	{
