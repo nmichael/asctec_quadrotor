@@ -32,6 +32,8 @@ unsigned char *UART1_rxptr;
 
 unsigned char UART_CalibDoneFlag = 0;
 
+unsigned char Ctrl_Input_updated = 0;
+
 static volatile unsigned char rb_busy=0;
 
 /*
@@ -423,7 +425,24 @@ void uart0ISR(void) __irq
 			else UART_syncstate = 0;
 			break;
         case 3:
-			UART_syncstate=0;
+			if (UART_rxdata=='p')
+			{
+				UART_rxcount=sizeof(Ctrl_Input);
+				UART_rxptr=(unsigned char *)&Ctrl_Input_tmp;
+				UART_syncstate=4;
+			}
+			else UART_syncstate=0;
+			break;
+        case 4:
+        	UART_rxcount--;
+			*UART_rxptr=UART_rxdata;
+			UART_rxptr++;
+
+			if (UART_rxcount==0)
+			{
+				Ctrl_Input_updated = 1;
+				UART_syncstate = 0;
+			}
 			break;
         default:
         	UART_syncstate=0;

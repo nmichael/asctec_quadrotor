@@ -13,46 +13,51 @@ extern unsigned int SPIWR_num_bytes;
 struct LL_ATTITUDE_DATA LL_1khz_attitude_data;
 struct LL_CONTROL_INPUT LL_1khz_control_input;
 
+extern short angle_roll;
+extern short angle_pitch;
+extern unsigned short angle_yaw;
+
+extern short angvel_roll;
+extern short angvel_pitch;
+extern short angvel_yaw;
+
+extern short acc_x;
+extern short acc_y;
+extern short acc_z;
+
 void SSP_data_distribution_HL(void)
 {
-  unsigned int i;
 	unsigned char current_page=LL_1khz_attitude_data.system_flags&0x03;
 
 	if(LL_1khz_attitude_data.system_flags&SF_GPS_NEW) gpsDataOkTrigger=0;
 
-	Filter_Data.angle_roll = LL_1khz_attitude_data.angle_roll;
-	Filter_Data.angle_pitch = LL_1khz_attitude_data.angle_pitch;
-	Filter_Data.angle_yaw = LL_1khz_attitude_data.angle_yaw;
+        angle_roll = LL_1khz_attitude_data.angle_roll;
+        angle_pitch = LL_1khz_attitude_data.angle_pitch;
+        angle_yaw = LL_1khz_attitude_data.angle_yaw;
 
-	Filter_Data.angvel_roll = LL_1khz_attitude_data.angvel_roll;
-	Filter_Data.angvel_pitch = LL_1khz_attitude_data.angvel_pitch;
-	Filter_Data.angvel_yaw = LL_1khz_attitude_data.angvel_yaw;
+        angvel_roll = LL_1khz_attitude_data.angvel_roll;
+        angvel_pitch = LL_1khz_attitude_data.angvel_pitch;
+        angvel_yaw = LL_1khz_attitude_data.angvel_yaw;
 
-	angvel_pitchnew = LL_1khz_attitude_data.angvel_pitch;
-	angvel_rollnew = LL_1khz_attitude_data.angvel_roll;
-
+#ifdef OUTPUT
 	if(!current_page)	//page 0
 	{
-		for(i=0;i<8;i++)
-		{
-                  Filter_Data.channel[i]=LL_1khz_attitude_data.RC_data[i]*16;
-		}
-
-		Filter_Data.acc_x = LL_1khz_attitude_data.acc_x;
-		Filter_Data.acc_y = LL_1khz_attitude_data.acc_y;
-		Filter_Data.acc_z = LL_1khz_attitude_data.acc_z;
+          acc_x = LL_1khz_attitude_data.acc_x;
+          acc_y = LL_1khz_attitude_data.acc_y;
+          acc_z = LL_1khz_attitude_data.acc_z;
 	}
 	else if(current_page==1)	//page 1
-	{
-		Filter_Data.height = LL_1khz_attitude_data.height;
-		Filter_Data.dheight = LL_1khz_attitude_data.dheight;
-	}
+          {
+            //Output_Data.height = LL_1khz_attitude_data.height;
+            //Output_Data.dheight = LL_1khz_attitude_data.dheight;
+          }
 	else if(current_page==2)
-	{
-		//Filter_Data.Hx = LL_1khz_attitude_data.mag_x;
-		//Filter_Data.Hy = LL_1khz_attitude_data.mag_y;
-		//Filter_Data.Hz = LL_1khz_attitude_data.mag_z;
+          {
+            //Output_Data.Hx = LL_1khz_attitude_data.mag_x;
+            //Output_Data.Hy = LL_1khz_attitude_data.mag_y;
+            //Output_Data.Hz = LL_1khz_attitude_data.mag_z;
 	}
+#endif
 }
 
 int HL2LL_write_cycle(void)	//write data to low-level processor

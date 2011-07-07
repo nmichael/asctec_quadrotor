@@ -4,6 +4,9 @@
 //extern static void timer0ISR(void);
 extern void mainloop(void);
 extern void timer0ISR(void);
+extern float normalize_deg(float);
+
+#define OUTPUT
 
 #define BATTERY_WARNING_VOLTAGE 10000	//9800 mV
 #define BAT_DIV 10//(BATTERY_WARNING_VOLTAGE-9000)/100
@@ -43,7 +46,8 @@ extern void timer0ISR(void);
 #define PD_IMUCALCDATA      0x03
 #define PD_HLSTATUS        	0x04
 
-#define PD_FILTERDATA		0x05
+#define PD_CTRLINPUT 0x05
+#define PD_OUTPUTDATA 0x06
 
 #define PD_CTRLOUT			0x11
 #define PD_FLIGHTPARAMS     0x12
@@ -61,15 +65,43 @@ extern void timer0ISR(void);
 
 #define CAM_TRIGGERED		0x04
 
-
-struct FILTER_DATA
+struct CTRL_INPUT
 {
+  unsigned short kp_roll, kd_roll;
+  unsigned short kp_pitch, kd_pitch;
+  unsigned short kp_yaw, kd_yaw;
+
+  short roll_des;
+  short pitch_des;
+  short yaw_des;
+  unsigned short thrust_des;
+
+  short p_des;
+  short q_des;
+  short r_des;
+
+  short z_correction;
+  short r_correction;
+  short p_correction;
+
+  short chksum;
+};
+extern struct CTRL_INPUT Ctrl_Input, Ctrl_Input_tmp;
+
+struct OUTPUT_DATA
+{
+  // CPU load
+  unsigned short cpu_load;
+
+  // Battery voltage
+  unsigned short voltage;
+
   // angles derived by integration of gyro_outputs,
   // drift compensated by data fusion;
   // -9000..+9000 pitch(nick) and roll, 0..36000 yaw; 100 = 1 degree
   short angle_roll;
   short angle_pitch;
-  unsigned short angle_yaw;
+  short angle_yaw;
 
   //angular velocities, raw values [16 bit], bias free,
   // in 0.0154 °/s (=> 64.8 = 1 °/s)
@@ -81,25 +113,8 @@ struct FILTER_DATA
   short acc_x;
   short acc_y;
   short acc_z;
-
-  //height in mm (after data fusion)
-  int height;
-
-  //diff. height in mm/s (after data fusion)
-  int dheight;
-
-  // Battery voltage
-  short battery_voltage;
-
-  // Serial data enable
-  //unsigned short serial;
-
-  // CPU load
-  unsigned short cpu_load;
-
-  unsigned short channel[8];
 };
-extern struct FILTER_DATA Filter_Data;
+extern struct OUTPUT_DATA Output_Data;
 
 struct IMU_CALCDATA {
 	//angles derived by integration of gyro_outputs, drift compensated by data fusion; -90000..+90000 pitch(nick) and roll, 0..360000 yaw; 1000 = 1 degree
@@ -195,6 +210,7 @@ struct SYSTEM_PERMANENT_DATA
 };
 extern struct SYSTEM_PERMANENT_DATA SYSTEM_Permanent_Data;
 
+/*
 struct CTRL_INPUT
 {
 	short pitch;
@@ -205,6 +221,7 @@ struct CTRL_INPUT
 	short chksum;
 };
 extern struct CTRL_INPUT CTRL_Input, CTRL_Input_tmp;
+*/
 
 struct CONTROLLER_OUTPUT
 {

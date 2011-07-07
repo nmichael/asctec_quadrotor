@@ -18,7 +18,11 @@ void init(void)
   pll_init();
   pll_feed();
   init_ports();
-  UARTInitialize(115200);	//debug / command
+#ifdef OUTPUT
+  UARTInitialize(230400);	//debug / command
+#else
+  UARTInitialize(57600);
+#endif
   UART1Initialize(57600);	//57600 Servo / GPS, 38400 "indoor GPS"
   init_spi();
   init_spi1();

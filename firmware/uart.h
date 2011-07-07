@@ -37,5 +37,7 @@ extern unsigned char transmission_running;
 #define RX_ACTSYNC2 2
 #define RX_ACTDATA 3
 #define RX_ACTCHKSUM 4
+
+extern unsigned char PD_Input_updated;
 #endif //__UART_H
 
