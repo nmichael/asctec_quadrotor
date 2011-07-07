@@ -1,0 +1,13 @@
+mass: 0.5
+inertia: {Ixx: 2.32e-3, Iyy: 2.32e-3, Izz: 4.41e-3}
+length: 0.175
+propeller_radius: 0.099
+gyro_limit: 300
+motor:
+  limits: {min: 1035, max: 7800}
+rates:
+  odometry: 100
+gains:
+  motor: 20
+  thrust: 6.1110e-08
+  # thrust: 9.7006e-08

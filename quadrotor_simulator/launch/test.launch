@@ -1,10 +1,9 @@
- <launch>
+<launch>
   <node pkg="quadrotor_simulator"
-        name="quadrotor"
+        name="simulator"
         type="quadrotor_simulator"
         output="screen">
-    <param name="model_file"
-           value="$(find QuadrotorSimulator)/models/hummingbird.xml"/>
+    <rosparam file="$(find quadrotor_simulator)/config/hummingbird.yaml"/>
     <param name="init/z" value="2.0"/>
     <param name="init/roll" value="0"/>
     <param name="init/pitch" value="0"/>
@@ -15,22 +14,23 @@
         name="odometry"
         type="odometry"
         output="screen">
-    <param name="~tf_prefix" value="quadrotor"/>
-    <remap from="~odometry" to="/quadrotor/odom"/>
-    <param name="mailbox" value="/odometry" type="string"/>
+    <remap from="~topic" to="/simulator/quadrotor/odom"/>
+    <param name="mailbox" value="odom"/>
   </node>
 
-  <node pkg="ipc_bridge_ros"
-        name="nav_msgs_Odometry_publisher"
+  <node pkg="ipc_nav_msgs"
         type="nav_msgs_Odometry_publisher"
+        name="matlab_odom"
         output="screen">
-    <remap from="~odom" to="/quadrotor/odom"/>
+    <remap from="~topic" to="/simulator/quadrotor/odom"/>
+    <param name="message" value="odom"/>
   </node>
 
-  <node pkg="ipc_bridge_ros"
-        name="asctec_HWCmd_subscriber"
-        type="asctec_HWCmd_subscriber"
+  <node pkg="asctec"
+        type="asctec_Command_subscriber"
+        name="matlab_cmd"
         output="screen">
-    <remap from="~cmd_hw" to="/quadrotor/cmd_hw"/>
+    <remap from="~topic" to="/simulator/quadrotor/cmd"/>
+    <param name="message" value="cmd"/>
   </node>
 </launch>

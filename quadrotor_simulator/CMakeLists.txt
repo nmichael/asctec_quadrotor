@@ -19,7 +19,7 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #uncomment if you have defined messages
 #rosbuild_genmsg()
 #uncomment if you have defined services
-rosbuild_gensrv()
+#rosbuild_gensrv()
 
 #common commands for building c++ executables and libraries
 #rosbuild_add_library(${PROJECT_NAME} src/example.cpp)
@@ -30,24 +30,10 @@ rosbuild_gensrv()
 #target_link_libraries(example ${PROJECT_NAME})
 
 rosbuild_add_executable(quadrotor_simulator
-                        src/quadrotor_simulator.cc)
-target_link_libraries(quadrotor_simulator quadrotorsimulator)
-IF (NOT APPLE) 
+                        src/quadrotor_simulator.cc
+                        src/QuadrotorSimulator.cc
+                        src/QuadrotorModel.cc)
+target_link_libraries(quadrotor_simulator gsl)
+IF (NOT APPLE)
 target_link_libraries(quadrotor_simulator blas)
 ENDIF (NOT APPLE)
-
-rosbuild_add_executable(quadrotor_simulator_so3
-                        src/quadrotor_simulator_so3.cc)
-target_link_libraries(quadrotor_simulator_so3 quadrotorsimulator_so3)
-IF (NOT APPLE) 
-target_link_libraries(quadrotor_simulator_so3 blas)
-ENDIF (NOT APPLE)
-
-rosbuild_add_executable(multi_quadrotor_simulator 
-                        src/multi_quadrotor_simulator.cc)
-target_link_libraries(multi_quadrotor_simulator
-                      multiquadrotorsimulator)
-IF (NOT APPLE) 
-target_link_libraries(multi_quadrotor_simulator blas)
-ENDIF (NOT APPLE)
-

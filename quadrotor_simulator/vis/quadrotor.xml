@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 <vis>
-
   <gui>
     <size>800 600</size>
     <name>Vis</name>
@@ -60,10 +59,11 @@
   </plugin>
 
   <plugin>
-    <id>quadrotor</id>
+    <id>odom</id>
     <filename>Dummy.so</filename>
+
     <plugin>
-      <id>odometry</id>
+      <id>mesh</id>
       <filename>Hummingbird.so</filename>
       <xyz>0 0 0</xyz>
       <rpy>0 0 0</rpy>
