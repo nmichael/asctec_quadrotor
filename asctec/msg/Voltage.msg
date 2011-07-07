@@ -1,2 +1,0 @@
-Header header
-float32 battery_voltage

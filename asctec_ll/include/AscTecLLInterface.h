@@ -3,6 +3,28 @@
 
 // Class object to interface with AscTec Robots using LL communications
 
+// N. Michael, UPenn
+
+/*
+ * This file is part of asctec_ll, a ros node for interfacing to an
+ * Ascending Technologies quadrotor using the low-level processor and
+ * firmware provide stock with each quadrotor.
+ *
+ *  The asctec_ll ros node is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  The asctec ros node is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with the asctec_ll ros node.
+ *  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -23,15 +45,15 @@ class AscTec
   int Connect(const char* serial_port);
   // Close the serial port
   void Disconnect();
-  
+
   // Cycle once to process serial buffer and callbacks for data
   void Update(double timeout_ms = 1);
-  
+
   // Set the command
   void SetSICommand(float thrust, float roll, float pitch, float yaw,
-                    bool cmd_thrust, bool cmd_roll, 
+                    bool cmd_thrust, bool cmd_roll,
                     bool cmd_pitch, bool cmd_yaw);
-  
+
   // Trigger the sending of the command
   void SendCommand();
 
@@ -55,20 +77,20 @@ class AscTec
                                        unsigned short /*up_time*/));
 
   void SetIMURawDataCallback(void (*ptr)(int /*pressure*/,
-                                         short /*gyro_x*/, 
-                                         short /*gyro_y*/, 
+                                         short /*gyro_x*/,
+                                         short /*gyro_y*/,
                                          short /*gyro_z*/,
-                                         short /*mag_x*/, 
-                                         short /*mag_y*/, 
+                                         short /*mag_x*/,
+                                         short /*mag_y*/,
                                          short /*mag_z*/,
-                                         short /*acc_x*/, 
-                                         short /*acc_y*/, 
+                                         short /*acc_x*/,
+                                         short /*acc_y*/,
                                          short /*acc_z*/,
                                          unsigned short /*temp_gyro*/,
                                          unsigned int /*temp_ADC*/));
 
-  void SetIMUCalcDataCallback(void (*ptr)(float /*angle_roll*/, 
-                                          float /*angle_pitch*/, 
+  void SetIMUCalcDataCallback(void (*ptr)(float /*angle_roll*/,
+                                          float /*angle_pitch*/,
                                           float /*angle_yaw*/,
                                           float /*angvel_roll*/,
                                           float /*angvel_pitch*/,
@@ -84,26 +106,26 @@ class AscTec
                                           float /*acc_absolute_value*/,
                                           int /*Hx*/, int /*Hy*/, int /*Hz*/,
                                           float /*mag_heading*/,
-                                          int /*speed_x*/, 
-                                          int /*speed_y*/, 
+                                          int /*speed_x*/,
+                                          int /*speed_y*/,
                                           int /*speed_z*/,
                                           float /*height*/, float /*dheight*/,
-                                          float /*height_reference*/, 
+                                          float /*height_reference*/,
                                           float /*dheight_reference*/));
 
   void SetRCDataCallback(void (*ptr)(const unsigned short (*/*channels_in*/)[8],
                                      const unsigned short (*/*channels_out*/)[8],
                                      bool /*lock*/));
 
-  void SetCTRLOutCallback(void (*ptr)(int /*thrust*/, 
-                                      int /*roll*/, 
-                                      int /*pitch*/, 
+  void SetCTRLOutCallback(void (*ptr)(int /*thrust*/,
+                                      int /*roll*/,
+                                      int /*pitch*/,
                                       int /*yaw*/));
 
   void SetGPSDataCallback(void (*ptr)(double /*latitude*/,
                                       double /*longitude*/,
                                       float /*height*/,
-                                      float /*speed_x*/, 
+                                      float /*speed_x*/,
                                       float /*speed_y*/,
                                       float /*heading*/,
                                       float /*horizontal_accuracy*/,
@@ -115,19 +137,19 @@ class AscTec
   void SetGPSDataAdvancedCallback(void (*ptr)(double /*latitude*/,
                                               double /*longitude*/,
                                               float /*height*/,
-                                              float /*speed_x*/, 
+                                              float /*speed_x*/,
                                               float /*speed_y*/,
                                               float /*heading*/,
                                               float /*horizontal_accuracy*/,
                                               float /*vertical_accuracy*/,
                                               float /*speed_accuracy*/,
-                                              unsigned int /*numSV*/,     
+                                              unsigned int /*numSV*/,
                                               bool /*gps_fix*/,
                                               double /*latitude_best_estimate*/,
                                               double /*longitude_best_estimate*/,
                                               double /*speed_x_best_estimate*/,
                                               double /*speed_y_best_estimate*/));
-  
+
  private:
   double DegToRad(double deg);
   double GetTimeDouble();
@@ -148,7 +170,7 @@ class AscTec
   double ctrl_out_rate;
   double gps_data_rate;
   double gps_data_advanced_rate;
-  
+
   double last_status_req;
   double last_imuraw_req;
   double last_imucalc_req;
@@ -187,20 +209,20 @@ class AscTec
                         unsigned short /*up_time*/);
 
   void (*imu_raw_data_ptr)(int /*pressure*/,
-                           short /*gyro_x*/, 
-                           short /*gyro_y*/, 
+                           short /*gyro_x*/,
+                           short /*gyro_y*/,
                            short /*gyro_z*/,
-                           short /*mag_x*/, 
-                           short /*mag_y*/, 
+                           short /*mag_x*/,
+                           short /*mag_y*/,
                            short /*mag_z*/,
-                           short /*acc_x*/, 
-                           short /*acc_y*/, 
+                           short /*acc_x*/,
+                           short /*acc_y*/,
                            short /*acc_z*/,
                            unsigned short /*temp_gyro*/,
                            unsigned int /*temp_ADC*/);
 
-  void (*imu_calc_data_ptr)(float /*angle_roll*/, 
-                            float /*angle_pitch*/, 
+  void (*imu_calc_data_ptr)(float /*angle_roll*/,
+                            float /*angle_pitch*/,
                             float /*angle_yaw*/,
                             float /*angvel_roll*/,
                             float /*angvel_pitch*/,
@@ -216,26 +238,26 @@ class AscTec
                             float /*acc_absolute_value*/,
                             int /*Hx*/, int /*Hy*/, int /*Hz*/,
                             float /*mag_heading*/,
-                            int /*speed_x*/, 
-                            int /*speed_y*/, 
+                            int /*speed_x*/,
+                            int /*speed_y*/,
                             int /*speed_z*/,
                             float /*height*/, float /*dheight*/,
-                            float /*height_reference*/, 
+                            float /*height_reference*/,
                             float /*dheight_reference*/);
 
   void (*rc_data_ptr)(const unsigned short (*/*channels_in*/)[8],
                       const unsigned short (*/*channels_out*/)[8],
                       bool /*lock*/);
 
-  void (*ctrl_out_ptr)(int /*thrust*/, 
-                       int /*roll*/, 
-                       int /*pitch*/, 
+  void (*ctrl_out_ptr)(int /*thrust*/,
+                       int /*roll*/,
+                       int /*pitch*/,
                        int /*yaw*/);
 
   void (*gps_data_ptr)(double /*latitude*/,
                        double /*longitude*/,
                        float /*height*/,
-                       float /*speed_x*/, 
+                       float /*speed_x*/,
                        float /*speed_y*/,
                        float /*heading*/,
                        float /*horizontal_accuracy*/,
@@ -252,7 +274,7 @@ class AscTec
                                 float /*horizontal_accuracy*/,
                                 float /*vertical_accuracy*/,
                                 float /*speed_accuracy*/,
-                                unsigned int /*numSV*/,     
+                                unsigned int /*numSV*/,
                                 bool /*gps_fix*/,
                                 double /*latitude_best_estimate*/,
                                 double /*longitude_best_estimate*/,

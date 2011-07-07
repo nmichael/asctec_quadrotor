@@ -29,9 +29,8 @@ rosbuild_genmsg()
 #rosbuild_add_executable(example examples/example.cpp)
 #target_link_libraries(example ${PROJECT_NAME})
 
-rosbuild_add_executable(asctec_ll 
+rosbuild_add_executable(asctec_ll
                 src/asctec_ll.cc
                 src/AscTecLLInterface.cc
-                src/AscTecPacket.cc
-                src/SerialDevice.cc)
+                src/AscTecPacket.cc)
 

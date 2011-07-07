@@ -1,3 +1,25 @@
+// N. Michael, UPenn
+
+/*
+ * This file is part of asctec_ll, a ros node for interfacing to an
+ * Ascending Technologies quadrotor using the low-level processor and
+ * firmware provide stock with each quadrotor.
+ *
+ *  The asctec_ll ros node is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  The asctec ros node is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with the asctec_ll ros node.
+ *  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "AscTecLLInterface.h"
 #include <sstream>
 #include <iostream>
@@ -31,10 +53,10 @@ AscTec::AscTec()
 
   // Set the outgoing message request
   memcpy((void*)&data_request, ">*>p", 4);
-  
-  // Set the first part of the command buffer   
+
+  // Set the first part of the command buffer
   char command[5];
- 
+
   command[0] = '>';
   command[1] = '*';
   command[2] = '>';
@@ -44,7 +66,7 @@ AscTec::AscTec()
   memset((void*)&command_buffer, 0, sizeof(command_buffer));
   memcpy((void*)&command_buffer, (void*)&command, sizeof(command));
   AscTecPacketInit(&packet);
-  
+
   // Zero pointers for casting data structures
   l = 0;
   d = 0;
@@ -73,7 +95,7 @@ int AscTec::Connect(const char* port)
   if (port_open)
     return 0;
 
-  // Open the serial port 
+  // Open the serial port
   if (sd.Connect(port, ASCTEC_BAUD_RATE))
     {
       printf("Failed to connect to %s\n", port);
@@ -103,7 +125,7 @@ void AscTec::SetSICommand(float thrust, float roll, float pitch, float yaw,
 {
   ctrl_input_t ctrl;
   memset((void*)&ctrl, 0, sizeof(ctrl_input_t));
-  
+
   if (cmd_pitch)
     {
       ctrl.ctrl |= 0x1;
@@ -146,9 +168,9 @@ void AscTec::SetSICommand(float thrust, float roll, float pitch, float yaw,
         ctrl.thrust = 0;
       else
         ctrl.thrust = (short)floor(thrust*4095);
-    } 
+    }
 
-  ctrl.chksum = ctrl.pitch + ctrl.roll + ctrl.yaw + 
+  ctrl.chksum = ctrl.pitch + ctrl.roll + ctrl.yaw +
     ctrl.thrust + ctrl.ctrl + 0xAAAA;
 
   pthread_mutex_lock(&cmd_buffer_mutex);
@@ -157,7 +179,7 @@ void AscTec::SetSICommand(float thrust, float roll, float pitch, float yaw,
   cmd_ready = true;
   pthread_mutex_unlock(&cmd_buffer_mutex);
 #ifdef DEBUG
-  printf("AscTec SI: Thrust: %d, Roll: %d, Pitch: %d, Yaw: %d\n", 
+  printf("AscTec SI: Thrust: %d, Roll: %d, Pitch: %d, Yaw: %d\n",
          ctrl.thrust, ctrl.roll, ctrl.pitch, ctrl.yaw);
 #endif
 
@@ -172,7 +194,7 @@ void AscTec::SendCommand()
 #ifdef DEBUG
       puts("AscTec sending command");
 #endif
-      pthread_mutex_lock(&port_mutex); 
+      pthread_mutex_lock(&port_mutex);
       sd.WriteChars(command_buffer, sizeof(command_buffer), 0);
       pthread_mutex_unlock(&port_mutex);
       cmd_ready = false;
@@ -196,14 +218,14 @@ void AscTec::SetLLStatusCallback(void (*ptr)(float /*battery_voltage*/,
 }
 
 void AscTec::SetIMURawDataCallback(void (*ptr)(int /*pressure*/,
-                                               short /*gyro_x*/, 
-                                               short /*gyro_y*/, 
+                                               short /*gyro_x*/,
+                                               short /*gyro_y*/,
                                                short /*gyro_z*/,
-                                               short /*mag_x*/, 
-                                               short /*mag_y*/, 
+                                               short /*mag_x*/,
+                                               short /*mag_y*/,
                                                short /*mag_z*/,
-                                               short /*acc_x*/, 
-                                               short /*acc_y*/, 
+                                               short /*acc_x*/,
+                                               short /*acc_y*/,
                                                short /*acc_z*/,
                                                unsigned short /*temp_gyro*/,
                                                unsigned int /*temp_ADC*/))
@@ -212,8 +234,8 @@ void AscTec::SetIMURawDataCallback(void (*ptr)(int /*pressure*/,
   imu_raw_data_callback_set = true;
 }
 
-void AscTec::SetIMUCalcDataCallback(void (*ptr)(float /*angle_roll*/, 
-                                                float /*angle_pitch*/, 
+void AscTec::SetIMUCalcDataCallback(void (*ptr)(float /*angle_roll*/,
+                                                float /*angle_pitch*/,
                                                 float /*angle_yaw*/,
                                                 float /*angvel_roll*/,
                                                 float /*angvel_pitch*/,
@@ -229,11 +251,11 @@ void AscTec::SetIMUCalcDataCallback(void (*ptr)(float /*angle_roll*/,
                                                 float /*acc_absolute_value*/,
                                                 int /*Hx*/, int /*Hy*/, int /*Hz*/,
                                                 float /*mag_heading*/,
-                                                int /*speed_x*/, 
-                                                int /*speed_y*/, 
+                                                int /*speed_x*/,
+                                                int /*speed_y*/,
                                                 int /*speed_z*/,
                                                 float /*height*/, float /*dheight*/,
-                                                float /*height_reference*/, 
+                                                float /*height_reference*/,
                                                 float /*dheight_reference*/))
 {
   imu_calc_data_ptr = ptr;
@@ -248,9 +270,9 @@ void AscTec::SetRCDataCallback(void (*ptr)(const unsigned short (*/*channels_in*
   rc_data_callback_set = true;
 }
 
-void AscTec::SetCTRLOutCallback(void (*ptr)(int /*thrust*/, 
-                                            int /*roll*/, 
-                                            int /*pitch*/, 
+void AscTec::SetCTRLOutCallback(void (*ptr)(int /*thrust*/,
+                                            int /*roll*/,
+                                            int /*pitch*/,
                                             int /*yaw*/))
 {
   ctrl_out_ptr = ptr;
@@ -260,7 +282,7 @@ void AscTec::SetCTRLOutCallback(void (*ptr)(int /*thrust*/,
 void AscTec::SetGPSDataCallback(void (*ptr)(double /*latitude*/,
                                             double /*longitude*/,
                                             float /*height*/,
-                                            float /*speed_x*/, 
+                                            float /*speed_x*/,
                                             float /*speed_y*/,
                                             float /*heading*/,
                                             float /*horizontal_accuracy*/,
@@ -276,13 +298,13 @@ void AscTec::SetGPSDataCallback(void (*ptr)(double /*latitude*/,
 void AscTec::SetGPSDataAdvancedCallback(void (*ptr)(double /*latitude*/,
                                                     double /*longitude*/,
                                                     float /*height*/,
-                                                    float /*speed_x*/, 
+                                                    float /*speed_x*/,
                                                     float /*speed_y*/,
                                                     float /*heading*/,
                                                     float /*horizontal_accuracy*/,
                                                     float /*vertical_accuracy*/,
                                                     float /*speed_accuracy*/,
-                                                    unsigned int /*numSV*/,     
+                                                    unsigned int /*numSV*/,
                                                     bool /*gps_fix*/,
                                                     double /*latitude_best_estimate*/,
                                                     double /*longitude_best_estimate*/,
@@ -308,7 +330,7 @@ inline double AscTec::DegToRad(double deg)
 void AscTec::RequestData()
 {
   double t = GetTimeDouble();
-  
+
   unsigned short request = 0;
   bool send_request = false;
 
@@ -327,9 +349,9 @@ void AscTec::RequestData()
       request_str << "LL_Status, ";
 #endif
     }
-  
+
   if (imu_raw_data_rate > 0 &&
-      t - last_imuraw_req > 1.0/imu_raw_data_rate) 
+      t - last_imuraw_req > 1.0/imu_raw_data_rate)
     {
       request |= IMU_RawData;
       last_imuraw_req = t;
@@ -338,9 +360,9 @@ void AscTec::RequestData()
       request_str << "IMURawData, ";
 #endif
     }
-  
+
   if (imu_calc_data_rate > 0 &&
-      t - last_imucalc_req > 1.0/imu_calc_data_rate) 
+      t - last_imucalc_req > 1.0/imu_calc_data_rate)
     {
       request |= IMU_CalcData;
       last_imucalc_req = t;
@@ -349,9 +371,9 @@ void AscTec::RequestData()
       request_str << "IMUCalcData, ";
 #endif
     }
-  
+
   if (rc_data_rate > 0 &&
-      t - last_rc_req > 1.0/rc_data_rate) 
+      t - last_rc_req > 1.0/rc_data_rate)
     {
       request |= RC_Data;
       last_rc_req = t;
@@ -360,20 +382,20 @@ void AscTec::RequestData()
       request_str << "RCData, ";
 #endif
     }
-  
+
   if (ctrl_out_rate > 0 &&
-      t - last_ctrloutput_req > 1.0/ctrl_out_rate) 
+      t - last_ctrloutput_req > 1.0/ctrl_out_rate)
     {
-      request |= CTRL_Out; 
+      request |= CTRL_Out;
       last_ctrloutput_req = t;
       send_request = true;
 #ifdef DEBUG
       request_str << "CTRLOut, ";
 #endif
     }
-  
+
   if (gps_data_rate > 0 &&
-      t - last_gps_req > 1.0/gps_data_rate) 
+      t - last_gps_req > 1.0/gps_data_rate)
     {
       request |= GPS_Data;
       last_gps_req = t;
@@ -382,11 +404,11 @@ void AscTec::RequestData()
       request_str << "GPSData, ";
 #endif
     }
-  
+
   if (gps_data_advanced_rate > 0 &&
-      t - last_gpsadv_req > 1.0/gps_data_advanced_rate) 
+      t - last_gpsadv_req > 1.0/gps_data_advanced_rate)
     {
-      request |= GPS_Data_Advanced; 
+      request |= GPS_Data_Advanced;
       last_gpsadv_req = t;
       send_request = true;
 #ifdef DEBUG
@@ -400,7 +422,7 @@ void AscTec::RequestData()
       std::cout << request_str.str() << std::endl;
 #endif
       memcpy((void*)&data_request[4], (void*)&request,
-             sizeof(unsigned short)); 
+             sizeof(unsigned short));
 
       pthread_mutex_lock(&port_mutex);
       sd.WriteChars(data_request, sizeof(data_request), 0);
@@ -419,15 +441,15 @@ void AscTec::Update(double timeout_ms)
   do
     {
       nchars = sd.ReadChars(&c, 1, 1e4);
-      
+
       if (nchars > 0)
         {
           ret = AscTecPacketProcessChar(c, &packet);
-          
+
           if (ret > 0)
             {
               uint8_t desc = AscTecPacketGetDescriptor(&packet);
-              
+
               switch(desc)
                 {
                 case PD_LLSTATUS:
@@ -576,7 +598,7 @@ void AscTec::Update(double timeout_ms)
 #endif
                   return;
                 }
-              
+
               break;
             }
           else if (ret < 0)

@@ -1,0 +1,37 @@
+struct asctec_Status
+{
+ unsigned int cpu_load;
+ float voltage;
+
+%{
+  asctec_Status()
+  {   
+  }
+  asctec_Status(const asctec_Status& msg)
+  {    
+    cpu_load = msg.cpu_load;
+    voltage = msg.voltage;
+  }
+  ~asctec_Status()
+  {
+  }
+  asctec_Status& operator= (const asctec_Status& msg)
+  {
+    cpu_load = msg.cpu_load;
+    voltage = msg.voltage;
+
+    return *this;
+  }
+%}
+
+};
+
+%{
+namespace ipc_bridge
+{
+    namespace asctec
+    {
+        typedef asctec_Status Status;
+    }
+}
+%}

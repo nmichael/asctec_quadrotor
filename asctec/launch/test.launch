@@ -3,15 +3,31 @@
         name="asctec"
         type="asctec"
         output="screen">
-    <param name="port" value="/dev/cu.usbserial-A800cGcZ"/>
-    <param name="zigbee" value="true"/>
+    <param name="port" value="/dev/cu.usbserial-A800dJNk"/>
+    <param name="port_rate" value="230400"/>
   </node>
 
-  <node pkg="ipc_bridge_ros"
-        name="asctec_PDCmd_subscriber"
-        type="asctec_PDCmd_subscriber"
+  <node pkg="asctec"
+        name="matlab_status"
+        type="asctec_Status_publisher"
         output="screen">
-    <remap from="~topic" to="/asctec/cmd_pd"/>
-    <param name="message" value="cmd_pd"/>
+    <remap from="~topic" to="/asctec/status"/>
+    <param name="message" value="status"/>
+  </node>
+
+  <node pkg="asctec"
+        name="matlab_cmd"
+        type="asctec_Command_subscriber"
+        output="screen">
+    <remap from="~topic" to="/asctec/cmd"/>
+    <param name="message" value="cmd"/>
+  </node>
+
+  <node pkg="ipc_sensor_msgs"
+        name="matlab_imu"
+        type="sensor_msgs_Imu_publisher"
+        output="screen">
+    <remap from="~topic" to="/asctec/imu"/>
+    <param name="message" value="imu"/>
   </node>
 </launch>

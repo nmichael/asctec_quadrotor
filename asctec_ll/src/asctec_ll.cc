@@ -1,3 +1,26 @@
+// N. Michael, UPenn
+
+/*
+ * This file is part of asctec_ll, a ros node for interfacing to an
+ * Ascending Technologies quadrotor using the low-level processor and
+ * firmware provide stock with each quadrotor.
+ *
+ *  The asctec_ll ros node is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  The asctec ros node is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with the asctec_ll ros node.
+ *  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include <ros/ros.h>
 #include <tf/tf.h>
 
@@ -41,7 +64,7 @@ void ll_status_callback(float battery_voltage,
   status_msg.up_time = up_time;
 
   ll_status_pub.publish(status_msg);
-  
+
   return;
 }
 
@@ -49,14 +72,14 @@ ros::Publisher imu_raw_data_pub;
 asctec_ll::IMURawData imu_raw_data_msg;
 
 void imu_raw_data_callback(int pressure,
-                           short gyro_x, 
-                           short gyro_y, 
+                           short gyro_x,
+                           short gyro_y,
                            short gyro_z,
-                           short mag_x, 
-                           short mag_y, 
+                           short mag_x,
+                           short mag_y,
                            short mag_z,
-                           short acc_x, 
-                           short acc_y, 
+                           short acc_x,
+                           short acc_y,
                            short acc_z,
                            unsigned short temp_gyro,
                            unsigned int temp_ADC)
@@ -70,7 +93,7 @@ void imu_raw_data_callback(int pressure,
   imu_raw_data_msg.mag.z = mag_z;
   imu_raw_data_msg.acc.x = acc_x;
   imu_raw_data_msg.acc.y = acc_y;
-  imu_raw_data_msg.acc.z = acc_z; 
+  imu_raw_data_msg.acc.z = acc_z;
   imu_raw_data_msg.temp_gyro = temp_gyro;
   imu_raw_data_msg.temp_ADC = temp_ADC;
 
@@ -78,7 +101,7 @@ void imu_raw_data_callback(int pressure,
   return;
 }
 
-void RPYToQuat(float roll, float pitch, float yaw, 
+void RPYToQuat(float roll, float pitch, float yaw,
                btQuaternion &quat)
 {
   // Rot RZ(yaw)*RX(roll)*RY(pitch)
@@ -97,8 +120,8 @@ void RPYToQuat(float roll, float pitch, float yaw,
 ros::Publisher imu_calc_data_pub;
 asctec_ll::IMUCalcData imu_calc_data_msg;
 
-void imu_calc_data_callback(float angle_roll, 
-                            float angle_pitch, 
+void imu_calc_data_callback(float angle_roll,
+                            float angle_pitch,
                             float angle_yaw,
                             float angvel_roll,
                             float angvel_pitch,
@@ -116,7 +139,7 @@ void imu_calc_data_callback(float angle_roll,
                             float mag_heading,
                             int speed_x, int speed_y, int speed_z,
                             float height, float dheight,
-                            float height_reference, 
+                            float height_reference,
                             float dheight_reference)
 {
   btQuaternion quat;
@@ -275,7 +298,7 @@ void cmd_si_callback(const asctec_ll::SICmd::ConstPtr& msg)
 
   ROS_DEBUG("%s: Setting SICmd: %f, %f, %f, %f, [%i, %i, %i, %i]",
             ros::this_node::getName().c_str(),
-            thrust, roll, pitch, yaw, 
+            thrust, roll, pitch, yaw,
             cmd_thrust, cmd_roll, cmd_pitch, cmd_yaw);
 
   asctec_ll_interface.SetSICommand(thrust, roll, pitch, yaw,
@@ -296,7 +319,7 @@ int main(int argc, char** argv)
   asctec_ll_interface.SetLLStatusRate(ll_status_rate);
   if (ll_status_rate > 0)
     {
-      ll_status_pub = 
+      ll_status_pub =
         n.advertise<asctec_ll::LLStatus>("ll_status", 1, true);
       asctec_ll_interface.SetLLStatusCallback(ll_status_callback);
     }
@@ -306,7 +329,7 @@ int main(int argc, char** argv)
   asctec_ll_interface.SetIMURawDataRate(imu_raw_data_rate);
   if (imu_raw_data_rate > 0)
     {
-      imu_raw_data_pub = 
+      imu_raw_data_pub =
         n.advertise<asctec_ll::IMURawData>("imu_raw_data", 1);
       asctec_ll_interface.SetIMURawDataCallback(imu_raw_data_callback);
     }
@@ -316,7 +339,7 @@ int main(int argc, char** argv)
   asctec_ll_interface.SetIMUCalcDataRate(imu_calc_data_rate);
   if (imu_calc_data_rate > 0)
     {
-      imu_calc_data_pub = 
+      imu_calc_data_pub =
         n.advertise<asctec_ll::IMUCalcData>("imu_calc_data", 1);
       asctec_ll_interface.SetIMUCalcDataCallback(imu_calc_data_callback);
     }
@@ -326,8 +349,8 @@ int main(int argc, char** argv)
   asctec_ll_interface.SetRCDataRate(rc_data_rate);
   if (rc_data_rate > 0)
     {
-      rc_data_pub = 
-        n.advertise<asctec_ll::RCData>("rc_data", 1);     
+      rc_data_pub =
+        n.advertise<asctec_ll::RCData>("rc_data", 1);
       asctec_ll_interface.SetRCDataCallback(rc_data_callback);
     }
 
@@ -336,8 +359,8 @@ int main(int argc, char** argv)
   asctec_ll_interface.SetCTRLOutRate(ctrl_out_rate);
   if (ctrl_out_rate > 0)
     {
-      ctrl_out_pub = 
-        n.advertise<asctec_ll::CTRLOut>("ctrl_out", 1);     
+      ctrl_out_pub =
+        n.advertise<asctec_ll::CTRLOut>("ctrl_out", 1);
       asctec_ll_interface.SetCTRLOutCallback(ctrl_out_callback);
     }
 
@@ -346,8 +369,8 @@ int main(int argc, char** argv)
   asctec_ll_interface.SetGPSDataRate(gps_data_rate);
   if (gps_data_rate > 0)
     {
-      gps_data_pub = 
-        n.advertise<asctec_ll::GPSData>("gps_data", 1);          
+      gps_data_pub =
+        n.advertise<asctec_ll::GPSData>("gps_data", 1);
       asctec_ll_interface.SetGPSDataCallback(gps_data_callback);
     }
 
@@ -356,29 +379,29 @@ int main(int argc, char** argv)
   asctec_ll_interface.SetGPSDataAdvancedRate(gps_data_advanced_rate);
   if (gps_data_advanced_rate > 0)
     {
-      gps_data_advanced_pub = 
+      gps_data_advanced_pub =
         n.advertise<asctec_ll::GPSDataAdvanced>("gps_data_advanced", 1);
       asctec_ll_interface.SetGPSDataAdvancedCallback(gps_data_advanced_callback);
     }
-  
+
   std::string port;
   n.param("port", port, std::string("/dev/ttyS0"));
 
   if (asctec_ll_interface.Connect(port.c_str()) != 0)
     {
-      ROS_ERROR("%s: unable to open port %s", 
+      ROS_ERROR("%s: unable to open port %s",
                 ros::this_node::getName().c_str(),
                 port.c_str());
-      return -1; 
+      return -1;
     }
 
   ros::Subscriber cmd_sub = n.subscribe("cmd_si", 10, cmd_si_callback);
   ros::Timer timer = n.createTimer(ros::Duration(1.0/cmd_rate), cmd_callback);
- 
+
   while (n.ok())
     {
       asctec_ll_interface.Update();
-      
+
       ros::spinOnce();
     }
 

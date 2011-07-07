@@ -1,147 +1,135 @@
+// N. Michael, UPenn
+
+/*
+ * This file is part of asctec, a ros node for interfacing to an
+ * Ascending Technologies quadrotor using the second, high-level processor.
+ *
+ *  The asctec ros node is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  The asctec ros node is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with the asctec ros node.
+ *  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/* To output data from the vehicle, enable the OUTPUT macro in main.h and
+ * enable the OUTPUT_DATA macro below.
+ * It will stream the output data and publish using the callback below.
+ * DO NOT output data from the vehicle unless you are using a tethered connection.
+ * Also, note that the baud rate changes when this macro is defined (see firmware/system.c)
+ * so you'll need to set the port_rate value to 230400 below.
+ */
+
+#define OUTPUT_DATA
+
 #include <ros/ros.h>
 #include <sensor_msgs/Imu.h>
 #include <tf/tf.h>
 
-#include <asctec/SerialStatus.h>
-#include <asctec/Voltage.h>
-#include <asctec/Altitude.h>
-#include <asctec/HWCmd.h>
-#include <asctec/DMCmd.h>
-#include <asctec/PDCmd.h>
+#include <asctec/Status.h>
+#include <asctec/Command.h>
 
 #include "AscTecInterface.h"
 
-AscTec asctec_interface;
+AscTecInterface asctec_interface;
 
 ros::Subscriber cmd_sub;
 
-ros::Publisher imu_pub;
-sensor_msgs::Imu imu_msg;
-
-void cmd_callback(const ros::TimerEvent& e)
+void cmd_timer(const ros::TimerEvent& e)
 {
   asctec_interface.SendCommand();
 }
 
-void RPYToQuat(float roll, float pitch, float yaw, 
-               btQuaternion &quat)
+void cmd_callback(const asctec::Command::ConstPtr& msg)
 {
-  // Rot RZ(yaw)*RX(roll)*RY(pitch)
-  btMatrix3x3 rot(cos(pitch)*cos(yaw) - sin(pitch)*sin(roll)*sin(yaw),
-                  -(cos(roll)*sin(yaw)),
-                  cos(yaw)*sin(pitch) + cos(pitch)*sin(roll)*sin(yaw),
-                  cos(yaw)*sin(pitch)*sin(roll) + cos(pitch)*sin(yaw),
-                  cos(roll)*cos(yaw),
-                  -(cos(pitch)*cos(yaw)*sin(roll)) + sin(pitch)*sin(yaw),
-                  -(cos(roll)*sin(pitch)),
-                  sin(roll),
-                  cos(pitch)*cos(roll));
-  rot.getRotation(quat);
+  asctec_interface.SetCommand(msg->thrust,
+                              msg->roll, msg->pitch, msg->yaw,
+                              msg->p, msg->q, msg->r,
+                              msg->kp_roll, msg->kd_roll,
+                              msg->kp_pitch, msg->kd_pitch,
+                              msg->kp_yaw, msg->kd_yaw,
+                              msg->z_correction,
+                              msg->r_correction,
+                              msg->p_correction);
 }
 
-void imu_callback(float roll, float pitch, float yaw,
-                  float wx, float wy, float wz,
-                  float ax, float ay, float az)
-{
-  ROS_DEBUG("imu data received");
+#ifdef OUTPUT_DATA
+ros::Publisher s_pub;
+ros::Publisher i_pub;
 
+sensor_msgs::Imu msg;
+asctec::Status status_msg;
+std::string frame_id;
+
+void output_callback(const AscTecInterface::output_t &data)
+{
+  unsigned int cpu_load = data.cpu_load;
+  double roll = data.roll;
+  double pitch = data.pitch;
+  double yaw = data.yaw;
+  double voltage = data.voltage;
+  double wx = data.wx;
+  double wy = data.wy;
+  double wz = data.wz;
+  double ax = data.ax;
+  double ay = data.ay;
+  double az = data.az;
+
+#if 0
+  printf("CPU Load: %u\n", cpu_load);
+  printf("rpy: %f, %f, %f\n", roll, pitch, yaw);
+  printf("voltage: %f\n", voltage);
+#endif
+
+  status_msg.cpu_load = cpu_load;
+  status_msg.voltage = float(voltage);
+  s_pub.publish(status_msg);
+
+  // RPY using ZXY convention
+  // Defines R' (rotation from world to body)
+  double cr = cos(roll);
+  double sr = sin(roll);
+  double cp = cos(pitch);
+  double sp = sin(pitch);
+  double cy = cos(yaw);
+  double sy = sin(yaw);
+
+  double R11 = cp*cy - sp*sr*sy;
+  double R12 = -cr*sy;
+  double R13 = cy*sp + cp*sr*sy;
+  double R21 = cy*sp*sr + cp*sy;
+  double R22 = cr*cy;
+  double R23 = -cp*cy*sr + sp*sy;
+  double R31 = -cr*sp;
+  double R32 = sr;
+  double R33 = cp*cr;
+
+  btMatrix3x3 rot(R11, R12, R13,
+                  R21, R22, R23,
+                  R31, R32, R33);
   btQuaternion quat;
-  RPYToQuat(roll, pitch, yaw, quat);
-  tf::quaternionTFToMsg(quat, imu_msg.orientation);
+  rot.getRotation(quat);
+  quat.normalize();
 
-  imu_msg.angular_velocity.x = wx;
-  imu_msg.angular_velocity.y = wy;
-  imu_msg.angular_velocity.z = wz;
-  imu_msg.orientation_covariance[0] = roll;
-  imu_msg.orientation_covariance[1] = pitch;
-  imu_msg.orientation_covariance[2] = yaw;
-  imu_msg.linear_acceleration.x = ax;
-  imu_msg.linear_acceleration.y = ay;
-  imu_msg.linear_acceleration.z = az;
-  imu_msg.header.stamp = ros::Time::now();
-  imu_pub.publish(imu_msg);
-
-  return;
+  msg.header.stamp = ros::Time::now();
+  msg.header.frame_id = frame_id;
+  tf::quaternionTFToMsg(quat, msg.orientation);
+  msg.angular_velocity.x = wx;
+  msg.angular_velocity.y = wy;
+  msg.angular_velocity.z = wz;
+  msg.linear_acceleration.x = ax;
+  msg.linear_acceleration.y = ay;
+  msg.linear_acceleration.z = az;
+  i_pub.publish(msg);
 }
-
-ros::Publisher altitude_pub;
-asctec::Altitude altitude_msg;
-
-void altitude_callback(float height, float dheight)
-{
-  altitude_msg.height = height;
-  altitude_msg.dheight = dheight;
-
-  altitude_pub.publish(altitude_msg);
-
-  return;
-}
-
-ros::Publisher serial_pub;
-asctec::SerialStatus serial_msg;
-
-void serial_callback(bool serial_status)
-{
-  ROS_DEBUG("Serial data received");
-
-  serial_msg.serial = serial_status;
-  serial_pub.publish(serial_msg);
-
-  return;
-}
-
-ros::Publisher voltage_pub;
-asctec::Voltage voltage_msg;
-
-void voltage_callback(float voltage)
-{
-  ROS_DEBUG("Voltage data received");
-
-  voltage_msg.battery_voltage = voltage;
-  voltage_msg.header.stamp = ros::Time::now();
-  voltage_pub.publish(voltage_msg);
-
-  return;
-}
-
-void cmd_pd_callback(const asctec::PDCmd::ConstPtr& msg)
-{
-  asctec_interface.SetPDCommand(msg->thrust, msg->roll, 
-                                msg->pitch, msg->yaw_delta,
-                                msg->kp_roll, msg->kd_roll,
-                                msg->kp_pitch, msg->kd_pitch,
-                                msg->kd_yaw, 
-                                msg->p_des, msg->q_des, msg->r_des,
-                                msg->roll_delta, msg->pitch_delta,
-                                msg->vicon_roll, msg->vicon_pitch, 
-                                msg->vicon_bil);
-}
-
-void cmd_hw_callback(const asctec::HWCmd::ConstPtr& msg)
-{
-  float thrust = msg->thrust;
-  float roll = msg->roll;
-  float pitch = msg->pitch;
-  float yaw = msg->yaw;
-
-  bool cmd_thrust = msg->cmd[0];
-  bool cmd_roll = msg->cmd[1];
-  bool cmd_pitch = msg->cmd[2];
-  bool cmd_yaw = msg->cmd[3];
-
-  asctec_interface.SetHWCommand(thrust, roll, pitch, yaw,
-                                cmd_thrust, cmd_roll, cmd_pitch, cmd_yaw);
-}
-
-void cmd_dm_callback(const asctec::DMCmd::ConstPtr& msg)
-{
-  float u1 = msg->u1;
-  float u2 = msg->u2;
-  float u3 = msg->u3;
-  float u4 = msg->u4;
-
-  asctec_interface.SetDMCommand(u1, u2, u3, u4);                                
-}
+#endif
 
 int main(int argc, char** argv)
 {
@@ -151,65 +139,41 @@ int main(int argc, char** argv)
   double cmd_rate;
   n.param("cmd_rate", cmd_rate, 100.0);
 
-  bool zigbee;
-  n.param("zigbee", zigbee, true);
-  
-  if (!zigbee)
-    {
-      imu_pub = n.advertise<sensor_msgs::Imu>("imu", 100);
-      n.param("frame_id", imu_msg.header.frame_id, std::string("imu"));
-      asctec_interface.SetIMUCallback(imu_callback, 1);
-
-      serial_pub = n.advertise<asctec::SerialStatus>("serial", 100);
-      voltage_pub = n.advertise<asctec::Voltage>("voltage", 100);
-
-      asctec_interface.SetSerialCallback(serial_callback, 100);
-      asctec_interface.SetVoltageCallback(voltage_callback, 100);
-
-      altitude_pub = n.advertise<asctec::Altitude>("altitude", 10);
-      asctec_interface.SetAltitudeCallback(altitude_callback, 10);
-    }
-  else
-    {
-      serial_pub = n.advertise<asctec::SerialStatus>("serial", 100);
-      voltage_pub = n.advertise<asctec::Voltage>("voltage", 100);
-
-      asctec_interface.SetSerialCallback(serial_callback);
-      asctec_interface.SetVoltageCallback(voltage_callback);
-    }
-  
   std::string port;
   n.param("port", port, std::string("/dev/ttyS0"));
 
   int port_rate;
-  if (!zigbee)
-    port_rate = 230400;
-  else
-    port_rate = 57600;
+  n.param("port_rate", port_rate, 57600);
 
   if (asctec_interface.Connect(port.c_str(), port_rate) != 0)
     {
-      ROS_ERROR("%s: unable to open port %s", 
+      ROS_ERROR("%s: unable to open port %s",
                 ros::this_node::getName().c_str(),
                 port.c_str());
-      return -1; 
+      return -1;
     }
 
-  // Register the cmd subscriber just as we get rolling
-  ros::Subscriber cmd_hw_sub = n.subscribe("cmd_hw", 10, cmd_hw_callback);
-  ros::Subscriber cmd_dm_sub;
-  if (!zigbee)
-    cmd_dm_sub = n.subscribe("cmd_dm", 10, cmd_dm_callback);
-  ros::Subscriber cmd_pd_sub = n.subscribe("cmd_pd", 10, cmd_pd_callback);
+#ifdef OUTPUT_DATA
+  i_pub = n.advertise<sensor_msgs::Imu>("imu", 100);
+  s_pub = n.advertise<asctec::Status>("status", 100, true);
+  asctec_interface.SetOutputCallback(output_callback);
 
-  ros::Timer timer = n.createTimer(ros::Duration(1.0/cmd_rate), cmd_callback);
- 
+  n.param("frame_id", frame_id, std::string("quadrotor/base"));
+#endif
+
+  ros::Subscriber cmd_sub = n.subscribe("cmd", 10, cmd_callback);
+
+  ros::Timer timer = n.createTimer(ros::Duration(1.0/cmd_rate), cmd_timer);
+
+#ifndef OUTPUT_DATA
+  ros::spin();
+#else
   while (n.ok())
     {
+      ros::spinOnce();
       asctec_interface.Update();
-      
-      ros::spinOnce();   
     }
+#endif
 
   asctec_interface.Disconnect();
 

@@ -1,0 +1,2 @@
+uint16 cpu_load
+float32 voltage

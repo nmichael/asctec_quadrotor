@@ -19,5 +19,7 @@ rosbuild_genmsg()
 #uncomment if you have defined services
 #rosbuild_gensrv()
 
-rosbuild_add_executable(asctec src/asctec.cc)
-target_link_libraries(asctec asctecinterface)
+rosbuild_add_executable(asctec
+                               src/asctec.cc
+                               src/AscTecInterface.cc
+                               src/AscTecPacket.cc)
