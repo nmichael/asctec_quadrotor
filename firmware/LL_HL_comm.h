@@ -21,9 +21,6 @@
 //direct motor control
 #define HL_CTRL_MOTORS_ONOFF_BY_RC	0x01
 
-int angvel_pitchnew;
-int angvel_rollnew;
-
 void LL_write_ctrl_data(char);
 int HL2LL_write_cycle(void);
 inline void SSP_rx_handler_HL(unsigned char);
