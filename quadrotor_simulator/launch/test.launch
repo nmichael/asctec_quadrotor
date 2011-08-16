@@ -10,14 +10,6 @@
     <param name="init/yaw" value="0"/>
   </node>
 
-  <node pkg="vis_nodes"
-        name="odometry"
-        type="odometry"
-        output="screen">
-    <remap from="~topic" to="/simulator/quadrotor/odom"/>
-    <param name="mailbox" value="odom"/>
-  </node>
-
   <node pkg="ipc_nav_msgs"
         type="nav_msgs_Odometry_publisher"
         name="matlab_odom"
