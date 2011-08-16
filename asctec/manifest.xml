@@ -11,6 +11,7 @@
   <depend package="sensor_msgs"/>
   <depend package="tf"/>
   <depend package="SerialDevice"/>
+  <depend package="asctec_packet"/>
 
 </package>
 

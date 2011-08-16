@@ -3,10 +3,10 @@
         name="asctec"
         type="asctec"
         output="screen">
-    <param name="port" value="/dev/cu.usbserial-A800dJNk"/>
-    <param name="port_rate" value="230400"/>
+    <param name="port" value="/dev/cu.usbserial-A600eG5C"/>
+    <param name="port_rate" value="57600"/>
   </node>
-
+<!--
   <node pkg="asctec"
         name="matlab_status"
         type="asctec_Status_publisher"
@@ -14,7 +14,7 @@
     <remap from="~topic" to="/asctec/status"/>
     <param name="message" value="status"/>
   </node>
-
+-->
   <node pkg="asctec"
         name="matlab_cmd"
         type="asctec_Command_subscriber"
@@ -22,7 +22,7 @@
     <remap from="~topic" to="/asctec/cmd"/>
     <param name="message" value="cmd"/>
   </node>
-
+<!--
   <node pkg="ipc_sensor_msgs"
         name="matlab_imu"
         type="sensor_msgs_Imu_publisher"
@@ -30,4 +30,5 @@
     <remap from="~topic" to="/asctec/imu"/>
     <param name="message" value="imu"/>
   </node>
+-->
 </launch>

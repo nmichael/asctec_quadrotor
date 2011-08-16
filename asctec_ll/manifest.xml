@@ -13,6 +13,7 @@
   <depend package="tf"/>
   <depend package="geometry_msgs"/>
   <depend package="SerialDevice"/>
+  <depend package="asctec_packet"/>
 
 </package>
 

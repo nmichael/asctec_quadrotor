@@ -1,0 +1,19 @@
+<package>
+  <description brief="asctec_packet">
+
+     asctec_packet
+
+  </description>
+  <author>Alex Kushleyev and Nathan Michael</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/asctec_packet</url>
+
+  <export>
+    <cpp cflags="-I${prefix}/include"
+         lflags="-Wl,-rpath,${prefix}/lib -L${prefix}/lib -lasctec_packet"/>
+  </export>
+
+</package>
+
+

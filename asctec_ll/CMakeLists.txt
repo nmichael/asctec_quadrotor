@@ -31,6 +31,5 @@ rosbuild_genmsg()
 
 rosbuild_add_executable(asctec_ll
                 src/asctec_ll.cc
-                src/AscTecLLInterface.cc
-                src/AscTecPacket.cc)
-
+                src/AscTecLLInterface.cc)
+target_link_libraries(asctec_ll asctec_packet)
